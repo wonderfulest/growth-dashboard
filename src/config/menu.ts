@@ -27,7 +27,8 @@ export const topMenus: TopMenuGroup[] = [
     title: '营销工具',
     basePaths: ['/marketing'],
     children: [
-      { key: 'user-profiles', title: '用户画像', path: '/marketing/user-profiles' },
+      // { key: 'user-profiles', title: '用户画像', path: '/marketing/user-profiles' },
+      { key: 'customers', title: '客户', path: '/marketing/customers' },
       { key: 'segments', title: '用户分群', path: '/marketing/segments' },
       { key: 'email-templates', title: '邮件模板', path: '/marketing/email-templates' },
       { key: 'promotion-campaigns', title: '营销活动', path: '/marketing/campaigns' },

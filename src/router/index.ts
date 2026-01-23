@@ -25,6 +25,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/marketing/customers',
+      name: 'Customers',
+      component: () => import('@/views/marketing/Customers.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/email-records',
       name: 'EmailRecords',
       component: () => import('@/views/dashboard/EmailRecords.vue'),
