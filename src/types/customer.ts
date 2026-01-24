@@ -20,6 +20,23 @@ export interface CustomerContactVO {
   updatedAt?: string
 }
 
+export interface CustomerContactCreateDTO {
+  customerId: number
+  fullName: string
+  jobTitle?: string
+  isDecisionMaker?: boolean
+  email?: string
+  messengerType?: MessengerTypeEnum
+  messengerId?: string
+  preferredLanguage?: string
+  linkedin?: string
+  notes?: string
+}
+
+export interface CustomerContactUpdateDTO extends CustomerContactCreateDTO {
+  id: number
+}
+
 export interface CustomerVO {
   id: number
   customerType?: CustomerTypeEnum

@@ -154,48 +154,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="detailDialog.visible" title="客户详情" width="820">
-      <div v-if="detailDialog.loading" style="text-align:center; padding:24px;">
-        <el-icon><i-ep-loading /></el-icon>
-      </div>
-      <div v-else-if="detail">
-        <el-descriptions title="基本信息" :column="2" border>
-          <el-descriptions-item label="ID">{{ detail.id }}</el-descriptions-item>
-          <el-descriptions-item label="客户类型">{{ customerTypeText(detail.customerType) }}</el-descriptions-item>
-          <el-descriptions-item label="公司名称">{{ detail.companyName }}</el-descriptions-item>
-          <el-descriptions-item label="公司类型">{{ detail.companyType || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="国家">{{ detail.country || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="城市">{{ detail.city || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="来源渠道">{{ detail.sourceChannel || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="官网">{{ detail.website || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="主营产品">{{ detail.mainProducts || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="细分领域">{{ detail.specialization || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="员工规模">{{ detail.employeeSize || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="状态">{{ statusText(detail.status) }}</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ formatDateTime(detail.createdAt || '') }}</el-descriptions-item>
-          <el-descriptions-item label="更新时间">{{ formatDateTime(detail.updatedAt || '') }}</el-descriptions-item>
-        </el-descriptions>
-
-        <div style="margin-top: 24px;">
-          <h4>联系人</h4>
-          <el-table :data="detail.contacts || []" style="width: 100%; margin-top: 8px;">
-            <el-table-column prop="fullName" label="姓名" min-width="140" />
-            <el-table-column prop="jobTitle" label="职位" min-width="160" />
-            <el-table-column prop="isDecisionMaker" label="决策人" width="100">
-              <template #default="{ row }">
-                <el-tag v-if="row.isDecisionMaker" type="success">是</el-tag>
-                <span v-else>否</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="email" label="邮箱" min-width="200" />
-            <el-table-column prop="messengerType" label="渠道" width="120" />
-            <el-table-column prop="messengerId" label="账号" min-width="180" />
-            <el-table-column prop="preferredLanguage" label="语言" width="100" />
-            <el-table-column prop="linkedin" label="LinkedIn" min-width="180" />
-          </el-table>
-        </div>
-      </div>
-    </el-dialog>
+    <CustomerDetailDialog v-model="detailVisible" :customer-id="detailCustomerId" />
   </div>
 </template>
 
@@ -203,12 +162,28 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { formatDateTime } from '@/utils/date'
-import { pageCustomers, createCustomer, updateCustomer, deleteCustomer, getCustomerDetail } from '@/api/customer'
-import type { CustomerVO, CustomerCreateDTO, CustomerUpdateDTO, CustomerQueryDTO, CustomerTypeEnum, CustomerStatusEnum } from '@/types/customer'
+import CustomerDetailDialog from './customer/CustomerDetailDialog.vue'
+import {
+  pageCustomers,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+} from '@/api/customer'
+import type {
+  CustomerVO,
+  CustomerCreateDTO,
+  CustomerUpdateDTO,
+  CustomerQueryDTO,
+  CustomerTypeEnum,
+  CustomerStatusEnum,
+} from '@/types/customer'
 
 const loading = ref(false)
 const list = ref<CustomerVO[]>([])
 const total = ref(0)
+
+const detailVisible = ref(false)
+const detailCustomerId = ref<number | null>(null)
 
 const query = reactive<CustomerQueryDTO>({
   pageNum: 1,
@@ -409,31 +384,9 @@ const doDelete = async (row: CustomerVO) => {
   }
 }
 
-// 详情
-const detailDialog = reactive<{ visible: boolean; loading: boolean; currentId?: number | null }>({
-  visible: false,
-  loading: false,
-  currentId: null,
-})
-
-const detail = ref<CustomerVO | null>(null)
-
-const openDetail = async (row: CustomerVO) => {
-  detailDialog.visible = true
-  detailDialog.loading = true
-  detailDialog.currentId = row.id
-  try {
-    const res = await getCustomerDetail(row.id, 'contacts')
-    if (res.code === 0 && res.data) {
-      detail.value = res.data
-    } else {
-      ElMessage.error(res.msg || '获取详情失败')
-    }
-  } catch {
-    ElMessage.error('获取详情失败')
-  } finally {
-    detailDialog.loading = false
-  }
+const openDetail = (row: CustomerVO) => {
+  detailCustomerId.value = row.id
+  detailVisible.value = true
 }
 
 onMounted(fetchPage)
